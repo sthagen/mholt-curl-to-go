@@ -193,7 +193,7 @@ function curlToGo(curl) {
 		else if (method == "HEAD")
 			return 'resp, err := http.Head('+goExpandEnv(url)+')\n'+err+deferClose;
 		else
-			return 'req, err := http.NewRequest('+goExpandEnv(method)+', '+goExpandEnv(url)+', nil)\n'+err+'resp, err := http.DefaultClient.Do(req)\n'+err+deferClose;
+			return 'req, err := http.NewRequest(http.Method'+toTitleCase(method)+', '+goExpandEnv(url)+', nil)\n'+err+'resp, err := http.DefaultClient.Do(req)\n'+err+deferClose;
 	}
 
 	// renderComplex renders Go code that requires making a http.Request.
@@ -221,7 +221,7 @@ function curlToGo(curl) {
 		var defaultPayloadVar = "body";
 		if (!req.data.ascii && !req.data.files) {
 			// no data; this is easy
-			go += 'req, err := http.NewRequest("'+req.method+'", '+goExpandEnv(req.url)+', nil)\n'+err;
+			go += 'req, err := http.NewRequest(http.Method'+toTitleCase(req.method)+', '+goExpandEnv(req.url)+', nil)\n'+err;
 		} else {
 			var ioReaders = [];
 
@@ -282,7 +282,7 @@ function curlToGo(curl) {
 				// ascii values first, followed by the files.
 				go += 'payload := io.MultiReader('+ioReaders.join(", ")+')\n';
 			}
-			go += 'req, err := http.NewRequest("'+req.method+'", '+goExpandEnv(req.url)+', '+payloadVar+')\n'+err;
+			go += 'req, err := http.NewRequest(http.Method'+toTitleCase(req.method)+', '+goExpandEnv(req.url)+', '+payloadVar+')\n'+err;
 		}
 
 		// set basic auth
